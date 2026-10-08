@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1E40AF',
+        primary: '#0F9D8A',
       },
       keyframes: {
         'fade-up': {
