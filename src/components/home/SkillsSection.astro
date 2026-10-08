@@ -1,75 +1,341 @@
 ---
-import { skills, CATEGORY_LABELS, CATEGORY_ORDER, type SkillLevel } from '../../data/skills';
+import { siPhp, siPython, siLaravel, siMysql, siRedis, siOpensearch, siGitlab, siGit } from 'simple-icons';
+import {
+  skills,
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+  LEVEL_PERCENT,
+  LEVEL_LABEL,
+  type SkillCategory,
+} from '../../data/skills';
 
-// カテゴリ別にグループ化し、featuredを先頭に、同レベル内はアルファベット順に並べる
-const LEVEL_RANK: Record<SkillLevel, number> = { expert: 0, proficient: 1, familiar: 2 };
+interface IconData {
+  path: string;
+  hex: string;
+}
 
-const skillsByCategory = CATEGORY_ORDER.map(category => ({
-  category,
-  label: CATEGORY_LABELS[category],
-  items: skills
-    .filter(s => s.category === category)
-    .sort((a, b) => {
-      if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      if (LEVEL_RANK[a.level] !== LEVEL_RANK[b.level]) return LEVEL_RANK[a.level] - LEVEL_RANK[b.level];
-      return a.name.localeCompare(b.name);
-    }),
-})).filter(group => group.items.length > 0);
-
-const levelBadgeClass: Record<SkillLevel, string> = {
-  expert: 'bg-blue-100 text-blue-800',
-  proficient: 'bg-green-100 text-green-800',
-  familiar: 'bg-gray-100 text-gray-700',
+const iconMap: Record<string, IconData> = {
+  PHP: { path: siPhp.path, hex: siPhp.hex },
+  Python: { path: siPython.path, hex: siPython.hex },
+  Laravel: { path: siLaravel.path, hex: siLaravel.hex },
+  MySQL: { path: siMysql.path, hex: siMysql.hex },
+  Redis: { path: siRedis.path, hex: siRedis.hex },
+  OpenSearch: { path: siOpensearch.path, hex: siOpensearch.hex },
+  'GitLab CI/CD': { path: siGitlab.path, hex: siGitlab.hex },
+  Git: { path: siGit.path, hex: siGit.hex },
 };
+
+const categoryStyle: Record<SkillCategory, { border: string; hover: string; dot: string; text: string }> = {
+  language: {
+    border: 'border-emerald-200',
+    hover: 'hover:border-emerald-400',
+    dot: 'bg-emerald-500',
+    text: 'text-emerald-700',
+  },
+  framework: {
+    border: 'border-blue-200',
+    hover: 'hover:border-blue-400',
+    dot: 'bg-blue-500',
+    text: 'text-blue-700',
+  },
+  database: {
+    border: 'border-purple-200',
+    hover: 'hover:border-purple-400',
+    dot: 'bg-purple-500',
+    text: 'text-purple-700',
+  },
+  infrastructure: {
+    border: 'border-orange-200',
+    hover: 'hover:border-orange-400',
+    dot: 'bg-orange-500',
+    text: 'text-orange-700',
+  },
+  tool: {
+    border: 'border-sky-200',
+    hover: 'hover:border-sky-400',
+    dot: 'bg-sky-500',
+    text: 'text-sky-700',
+  },
+};
+
+const row1 = skills;
+const row2 = [...skills].reverse();
+
+// クライアントに渡すスキルデータ（JSONシリアライズ）
+const skillsJson = JSON.stringify(
+  skills.map(s => ({
+    name: s.name,
+    category: s.category,
+    level: s.level,
+    yearsOfExperience: s.yearsOfExperience,
+    description: s.description ?? '',
+    canDo: s.canDo ?? [],
+    iconHex: iconMap[s.name]?.hex ?? null,
+    iconPath: iconMap[s.name]?.path ?? null,
+    levelPercent: LEVEL_PERCENT[s.level],
+    levelLabel: LEVEL_LABEL[s.level],
+  }))
+);
 ---
 
-<section class="py-16 px-4 bg-gray-50" aria-labelledby="skills-heading">
-  <div class="max-w-4xl mx-auto">
+<section class="py-16 bg-gray-50" aria-labelledby="skills-heading">
+  <div class="max-w-4xl mx-auto px-4 mb-8">
     <h2
       id="skills-heading"
-      class="text-3xl font-semibold text-gray-800 mb-10 text-center animate-on-scroll"
+      class="text-3xl font-semibold text-gray-800 mb-2 text-center animate-on-scroll"
     >
       Skills &amp; Technologies
     </h2>
+    <p class="text-center text-sm text-gray-400 animate-on-scroll">
+      <span class="sm:hidden">カードをタップして詳細を表示</span>
+      <span class="hidden sm:inline">カードをホバーして詳細を表示</span>
+    </p>
+  </div>
 
-    <div class="flex flex-col gap-8">
-      {skillsByCategory.map(group => (
-        <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-3 animate-on-scroll">
-            {group.label}
-          </h3>
-          <ul class="flex flex-wrap gap-2" aria-label={`${group.label} スキル一覧`}>
-            {group.items.map((skill, i) => (
-              <li
-                class="flex items-center gap-1.5 bg-white rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-800 animate-on-scroll hover:scale-105 hover:shadow-sm transition-transform cursor-default"
-                data-delay={i * 40}
-              >
+  <!-- Ticker rows -->
+  <div class="w-screen relative left-1/2 -translate-x-1/2 space-y-4 overflow-hidden">
+    <!-- Row 1: scroll left -->
+    <div class="flex w-max animate-ticker motion-reduce:animate-none" id="ticker-row1">
+      {[...row1, ...row1].map(skill => {
+        const icon = iconMap[skill.name];
+        const style = categoryStyle[skill.category];
+        return (
+          <div
+            class={`skill-card shrink-0 w-24 mx-2 rounded-xl border ${style.border} ${style.hover} bg-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 py-3 px-2 cursor-pointer`}
+            data-skill={skill.name}
+          >
+            {icon ? (
+              <svg viewBox="0 0 24 24" class="w-9 h-9" style={`fill: #${icon.hex}`} aria-hidden="true">
+                <path d={icon.path} />
+              </svg>
+            ) : (
+              <span class={`w-9 h-9 flex items-center justify-center text-[10px] font-bold ${style.text} text-center leading-tight`}>
                 {skill.name}
-                <span class={`text-xs px-1.5 py-0.5 rounded font-medium ${levelBadgeClass[skill.level]}`}>
-                  {skill.level}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+              </span>
+            )}
+            <span class="text-[10px] text-gray-400 font-medium leading-tight text-center w-full truncate px-1">
+              {skill.name}
+            </span>
+          </div>
+        );
+      })}
     </div>
 
-    <!-- 凡例 -->
-    <div class="mt-10 flex flex-wrap items-center gap-4 justify-center text-xs text-gray-500">
-      <span>習熟度:</span>
-      <span class="flex items-center gap-1">
-        <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">expert</span>
-        実務で深く使用・チームへの技術指導が可能
-      </span>
-      <span class="flex items-center gap-1">
-        <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded font-medium">proficient</span>
-        実務で継続的に使用・一人で完結できる
-      </span>
-      <span class="flex items-center gap-1">
-        <span class="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-medium">familiar</span>
-        実務経験あり・補助的に使用
-      </span>
+    <!-- Row 2: scroll right -->
+    <div class="flex w-max animate-ticker-reverse motion-reduce:animate-none" id="ticker-row2">
+      {[...row2, ...row2].map(skill => {
+        const icon = iconMap[skill.name];
+        const style = categoryStyle[skill.category];
+        return (
+          <div
+            class={`skill-card shrink-0 w-24 mx-2 rounded-xl border ${style.border} ${style.hover} bg-white shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 py-3 px-2 cursor-pointer`}
+            data-skill={skill.name}
+          >
+            {icon ? (
+              <svg viewBox="0 0 24 24" class="w-9 h-9" style={`fill: #${icon.hex}`} aria-hidden="true">
+                <path d={icon.path} />
+              </svg>
+            ) : (
+              <span class={`w-9 h-9 flex items-center justify-center text-[10px] font-bold ${style.text} text-center leading-tight`}>
+                {skill.name}
+              </span>
+            )}
+            <span class="text-[10px] text-gray-400 font-medium leading-tight text-center w-full truncate px-1">
+              {skill.name}
+            </span>
+          </div>
+        );
+      })}
     </div>
   </div>
+
+  <!-- Category legend -->
+  <div class="max-w-4xl mx-auto px-4 mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-500 animate-on-scroll">
+    {CATEGORY_ORDER.map(cat => (
+      <span class="flex items-center gap-2">
+        <span class={`w-2.5 h-2.5 rounded-full shrink-0 ${categoryStyle[cat].dot}`}></span>
+        {CATEGORY_LABELS[cat]}
+      </span>
+    ))}
+  </div>
 </section>
+
+<!-- 詳細パネル -->
+<div
+  id="skill-detail-panel"
+  class="fixed top-1/2 -translate-y-1/2 right-4 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 z-50 transition-all duration-300 opacity-0 pointer-events-none translate-x-4"
+  role="dialog"
+  aria-modal="false"
+  aria-label="スキル詳細"
+>
+  <!-- 閉じるボタン -->
+  <button
+    id="skill-detail-close"
+    class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+    aria-label="閉じる"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <!-- アイコン + 名前 -->
+  <div class="flex items-center gap-3 mb-4 pr-6">
+    <div id="skill-detail-icon-wrap" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+      <svg id="skill-detail-icon-svg" viewBox="0 0 24 24" class="w-7 h-7" aria-hidden="true">
+        <path id="skill-detail-icon-path" d="" />
+      </svg>
+      <span id="skill-detail-icon-text" class="hidden text-xs font-bold text-gray-600 text-center leading-tight px-1"></span>
+    </div>
+    <div>
+      <h3 id="skill-detail-name" class="font-bold text-gray-800 text-base leading-tight"></h3>
+      <span id="skill-detail-level-label" class="text-xs text-gray-500"></span>
+    </div>
+  </div>
+
+  <!-- 習熟度バー -->
+  <div class="mb-4">
+    <div class="flex justify-between text-xs text-gray-500 mb-1">
+      <span>習熟度</span>
+      <span id="skill-detail-percent"></span>
+    </div>
+    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div
+        id="skill-detail-bar"
+        class="h-full bg-primary rounded-full transition-all duration-500"
+        style="width: 0%"
+      ></div>
+    </div>
+  </div>
+
+  <!-- 経験年数 -->
+  <div class="bg-gray-50 rounded-xl p-3 mb-4">
+    <div class="text-xs text-gray-400 mb-0.5">経験年数</div>
+    <div id="skill-detail-years" class="text-2xl font-bold text-gray-800"></div>
+  </div>
+
+  <!-- 説明 -->
+  <p id="skill-detail-desc" class="text-sm text-gray-600 mb-4 leading-relaxed"></p>
+
+  <!-- できること -->
+  <div id="skill-detail-cando-wrap">
+    <p class="text-xs font-semibold text-primary mb-2">できること:</p>
+    <ul id="skill-detail-cando-list" class="space-y-1"></ul>
+  </div>
+</div>
+
+<script define:vars={{ skillsJson }}>
+  const SKILLS = JSON.parse(skillsJson);
+
+  const panel = document.getElementById('skill-detail-panel');
+  const closeBtn = document.getElementById('skill-detail-close');
+  const iconSvg = document.getElementById('skill-detail-icon-svg');
+  const iconPath = document.getElementById('skill-detail-icon-path');
+  const iconText = document.getElementById('skill-detail-icon-text');
+  const nameEl = document.getElementById('skill-detail-name');
+  const levelLabelEl = document.getElementById('skill-detail-level-label');
+  const percentEl = document.getElementById('skill-detail-percent');
+  const bar = document.getElementById('skill-detail-bar');
+  const yearsEl = document.getElementById('skill-detail-years');
+  const descEl = document.getElementById('skill-detail-desc');
+  const candoList = document.getElementById('skill-detail-cando-list');
+  const candoWrap = document.getElementById('skill-detail-cando-wrap');
+
+  let hideTimer = null;
+  let currentSkill = null;
+
+  function showPanel(skillName) {
+    const skill = SKILLS.find(s => s.name === skillName);
+    if (!skill || currentSkill === skillName) return;
+    currentSkill = skillName;
+
+    // アイコン
+    if (skill.iconPath) {
+      iconSvg.style.display = '';
+      iconText.classList.add('hidden');
+      iconPath.setAttribute('d', skill.iconPath);
+      iconSvg.style.fill = `#${skill.iconHex}`;
+    } else {
+      iconSvg.style.display = 'none';
+      iconText.classList.remove('hidden');
+      iconText.textContent = skill.name;
+    }
+
+    nameEl.textContent = skill.name;
+    levelLabelEl.textContent = skill.levelLabel;
+    percentEl.textContent = skill.levelPercent + '%';
+    bar.style.width = '0%';
+    yearsEl.textContent = skill.yearsOfExperience + '年';
+    descEl.textContent = skill.description;
+
+    // できること
+    candoList.innerHTML = '';
+    if (skill.canDo && skill.canDo.length > 0) {
+      candoWrap.style.display = '';
+      skill.canDo.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start gap-1.5 text-sm text-gray-600';
+        li.innerHTML = `<span class="mt-0.5 text-primary shrink-0">·</span>${item}`;
+        candoList.appendChild(li);
+      });
+    } else {
+      candoWrap.style.display = 'none';
+    }
+
+    // 表示
+    panel.classList.remove('opacity-0', 'pointer-events-none', 'translate-x-4');
+    panel.classList.add('opacity-100', 'translate-x-0');
+
+    // バーアニメーション（少し遅らせる）
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bar.style.width = skill.levelPercent + '%';
+      });
+    });
+  }
+
+  function hidePanel() {
+    panel.classList.add('opacity-0', 'pointer-events-none', 'translate-x-4');
+    panel.classList.remove('opacity-100', 'translate-x-0');
+    currentSkill = null;
+  }
+
+  // カードイベント
+  document.querySelectorAll('.skill-card').forEach(card => {
+    const name = card.dataset.skill;
+
+    // デスクトップ: ホバー
+    card.addEventListener('mouseenter', () => {
+      clearTimeout(hideTimer);
+      showPanel(name);
+    });
+    card.addEventListener('mouseleave', () => {
+      hideTimer = setTimeout(hidePanel, 250);
+    });
+
+    // モバイル: タップ
+    card.addEventListener('click', () => {
+      if (currentSkill === name) {
+        hidePanel();
+      } else {
+        showPanel(name);
+      }
+    });
+  });
+
+  // パネルにマウスが入ったら非表示を止める
+  panel.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  panel.addEventListener('mouseleave', () => {
+    hideTimer = setTimeout(hidePanel, 250);
+  });
+
+  // 閉じるボタン
+  closeBtn.addEventListener('click', hidePanel);
+
+  // パネル外クリックで閉じる
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target) && !e.target.closest('.skill-card')) {
+      hidePanel();
+    }
+  });
+</script>
