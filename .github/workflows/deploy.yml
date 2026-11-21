@@ -3,6 +3,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # ブログ欄の記事一覧はビルド時に Zenn の RSS から取得しているため、
+  # 新しい記事を公開しても再ビルドしない限りサイトに反映されない。
+  # 記事の更新頻度は高くないので、月1回定期的に作り直す。急ぐときは
+  # workflow_dispatch で手動実行する。
+  # 時刻は毎月1日の日本時間 09:17（UTC 1日 00:17）。cron は UTC で評価され、
+  # 日本時間 09:00 より前にすると UTC では前月の末日になって「1日」を
+  # 指定できないため、この時刻にしている。毎時0分は GitHub Actions の
+  # schedule が混み合って遅延・欠落しやすいので、半端な分にずらしている。
+  schedule:
+    - cron: '17 0 1 * *'
   workflow_dispatch:
 
 permissions:

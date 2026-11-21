@@ -56,19 +56,49 @@ function parseItem(itemXml: string): ZennArticle | null {
   return { title, url, publishedAt, tags, description, imageUrl };
 }
 
-export async function fetchZennArticles(): Promise<ZennArticle[]> {
-  try {
-    const response = await fetch(RSS_URL);
-    if (!response.ok) {
-      console.warn(`[zenn] RSS fetch failed: ${response.status} ${response.statusText}`);
-      return [];
-    }
-    const xml = await response.text();
-    return extractItemXml(xml)
-      .map(parseItem)
-      .filter((a): a is ZennArticle => a !== null);
-  } catch (err) {
-    console.warn('[zenn] RSS fetch error:', err);
-    return [];
+/**
+ * 取得に失敗したときにビルドを止めるかどうか。
+ *
+ * サイトは静的ビルドなので、取得に失敗したまま進むと記事一覧が空のページが
+ * デプロイされてしまう。CI（GitHub Actions は CI=true を設定する）では例外を
+ * 投げてビルドを失敗させ、前回デプロイ済みのサイトをそのまま残す。
+ * ローカルではオフラインでも開発できるよう、警告を出して空の一覧で続ける。
+ * ZENN_FETCH_STRICT=true / false で明示的に切り替えられる。
+ */
+function isStrict(): boolean {
+  const override = process.env.ZENN_FETCH_STRICT;
+  if (override !== undefined && override !== '') return override === 'true';
+  return Boolean(process.env.CI) && process.env.CI !== 'false';
+}
+
+function handleFailure(message: string, cause?: unknown): ZennArticle[] {
+  if (isStrict()) {
+    throw new Error(`[zenn] ${message}`, { cause });
   }
+  console.warn(`[zenn] ${message}`, ...(cause === undefined ? [] : [cause]));
+  return [];
+}
+
+export async function fetchZennArticles(): Promise<ZennArticle[]> {
+  let response: Response;
+  let xml: string;
+  try {
+    response = await fetch(RSS_URL);
+    xml = await response.text();
+  } catch (err) {
+    return handleFailure(`RSS fetch error (${RSS_URL})`, err);
+  }
+  if (!response.ok) {
+    return handleFailure(`RSS fetch failed: ${response.status} ${response.statusText} (${RSS_URL})`);
+  }
+
+  const articles = extractItemXml(xml)
+    .map(parseItem)
+    .filter((a): a is ZennArticle => a !== null);
+
+  // 公開済みの記事があるので、0件はフィードの形式変更などの異常とみなす。
+  if (articles.length === 0) {
+    return handleFailure(`RSS contained no articles (${RSS_URL})`);
+  }
+  return articles;
 }
