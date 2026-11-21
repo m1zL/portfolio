@@ -85,7 +85,8 @@ type SkillLevel =
 ```typescript
 interface CareerHistory {
   id: string;             // 識別子
-  company: string;        // 会社名
+  industry: string;       // 業種 (例: "Web系事業会社"。社名は書かない)
+  service: string;        // 携わったサービスの抽象的な説明 (固有名詞は書かない)
   role: string;           // 職種・役職 (例: "バックエンドエンジニア")
   startDate: string;      // 開始年月 (例: "2018-04")
   endDate?: string;       // 終了年月 (現職の場合は省略)
@@ -237,7 +238,7 @@ graph TB
 
 **表示仕様**:
 - タイムライン形式のレイアウト
-- 期間・会社名・役職を一目で把握できる構成
+- 期間・業種とサービス概要・役職を一目で把握できる構成（社名は表示しない）
 
 ---
 

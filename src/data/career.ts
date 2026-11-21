@@ -9,7 +9,10 @@ export interface CareerProject {
 
 export interface CareerHistory {
   id: string;
-  company: string;
+  /** 業種（例: "Web系事業会社"）。社名は書かない */
+  industry: string;
+  /** どんなサービスに携わったかの抽象的な説明。固有名詞は書かない */
+  service: string;
   role: string;
   /** 開始年月 "YYYY-MM" */
   startDate: string;
@@ -23,8 +26,9 @@ export interface CareerHistory {
 
 export const career: CareerHistory[] = [
   {
-    id: 'plex',
-    company: '株式会社プレックス',
+    id: 'career-2',
+    industry: 'Web系事業会社',
+    service: '自社のWebサービスを開発',
     role: 'ソフトウェアエンジニア',
     startDate: '2026-07',
     description: '',
@@ -32,13 +36,14 @@ export const career: CareerHistory[] = [
     technologies: ['Ruby', 'Ruby on Rails', 'TypeScript', 'React', 'Next.js', 'Google Cloud', 'Firebase', 'Vercel', 'Docker'],
   },
   {
-    id: 'gmo-design-one',
-    company: 'GMOデザインワン株式会社',
+    id: 'career-1',
+    industry: 'Web系事業会社',
+    service: '事業者と利用者をつなぐ自社のWebプラットフォームを開発',
     role: 'バックエンドエンジニア',
     startDate: '2019-04',
     endDate: '2026-03',
     description:
-      '店舗情報プラットフォームのバックエンド開発を担当。DDD/クリーンアーキテクチャを用いたフルリニューアルから収益直結の機能・外部API基盤の開発まで幅広く経験。',
+      '自社Webプラットフォームのバックエンド開発を担当。DDD/クリーンアーキテクチャを用いたフルリニューアルから収益直結の機能・外部API基盤の開発まで幅広く経験。',
     achievements: [],
     technologies: ['PHP', 'Laravel', 'Python', 'MySQL', 'Redis', 'OpenSearch', 'AWS', 'GitLab CI/CD'],
     projects: [
@@ -51,25 +56,25 @@ export const career: CareerHistory[] = [
         achievements: [],
       },
       {
-        name: '店舗公式HP作成機能の開発',
+        name: 'Webサイト自動作成機能の開発',
         description:
-          '店舗情報をもとに独自ドメイン対応の公式HPを自動作成・更新を行う機能の開発を担当。ドメイン設定からクラウドリソースの自動プロビジョニングをはじめとしたライフサイクルの設計・実装を担った。',
+          '掲載情報をもとに独自ドメイン対応のWebサイトを自動作成・更新する機能の開発を担当。ドメイン設定からクラウドリソースの自動プロビジョニングをはじめとしたライフサイクルの設計・実装を担った。',
         role: 'バックエンド',
         technologies: ['PHP', 'Laravel', 'AWS', 'AWS SDK for PHP'],
         achievements: [],
       },
       {
-        name: 'Googleビジネスプロフィール連携機能の開発',
+        name: '外部サービスへの情報同期機能の開発',
         description:
-          '店舗情報をGoogleビジネスプロフィールへ同期する機能の開発を担当。自社・外部データ間のマッピングの設計から、手運用を限りなく抑える形での実装を担った。',
+          '掲載情報を外部のプラットフォームサービスへ同期する機能の開発を担当。自社・外部データ間のマッピングの設計から、手運用を限りなく抑える形での実装を担った。',
         role: 'バックエンド',
-        technologies: ['PHP', 'Laravel', 'Google Business Profile API', 'MySQL'],
+        technologies: ['PHP', 'Laravel', '外部サービスAPI', 'MySQL'],
         achievements: [],
       },
       {
-        name: '店舗情報プラットフォームのフルリニューアル',
+        name: '自社Webプラットフォームのフルリニューアル',
         description:
-          '店舗情報プラットフォームおよび関連社内システムのフルリニューアルにメンバーとして参画。DDD/クリーンアーキテクチャ採用下の環境で複数コンテキスト領域の内部APIの設計・実装を担った。',
+          '自社Webプラットフォームおよび関連社内システムのフルリニューアルにメンバーとして参画。DDD/クリーンアーキテクチャ採用下の環境で複数コンテキスト領域の内部APIの設計・実装を担った。',
         role: 'バックエンド',
         technologies: ['PHP', 'Laravel', 'MySQL', 'Redis', 'DDD', 'クリーンアーキテクチャ', 'BFF'],
         achievements: [],
