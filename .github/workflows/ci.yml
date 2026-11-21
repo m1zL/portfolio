@@ -1,0 +1,54 @@
+name: CI
+
+# PR の段階で、型エラー・lint エラー・ビルドの失敗を見つけるためのワークフロー。
+# デプロイは deploy.yml が行う。こちらは検証だけで、何も公開しない。
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同じ PR（ref）に新しい push があったら、古い実行は取り消す。
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: check / lint / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run lint
+      - run: npm run build
+        env:
+          # GitHub Actions では CI=true になるため、src/lib/zenn.ts は Zenn の
+          # RSS を取れないとビルドを失敗させる（空の記事一覧をデプロイしないため）。
+          # PR の検証では Zenn 側の不調で落としたくないので、警告だけにする。
+          # deploy.yml は厳格なまま（取得に失敗したらデプロイを止める）。
+          ZENN_FETCH_STRICT: 'false'
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # 公式の Docker イメージを使う。版は固定し、Dependabot ではなく手で上げる。
+      - name: Run actionlint
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.12 -color
