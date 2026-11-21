@@ -9,7 +9,10 @@ export interface CareerProject {
 
 export interface CareerHistory {
   id: string;
-  company: string;
+  /** 業種（例: "Web系事業会社"）。社名は書かない */
+  industry: string;
+  /** どんなサービスに携わったかの抽象的な説明。固有名詞は書かない */
+  service: string;
   role: string;
   /** 開始年月 "YYYY-MM" */
   startDate: string;
@@ -23,8 +26,9 @@ export interface CareerHistory {
 
 export const career: CareerHistory[] = [
   {
-    id: 'company-b',
-    company: 'Web系事業会社B',
+    id: 'career-2',
+    industry: 'Web系事業会社',
+    service: '自社のWebサービスを開発',
     role: 'ソフトウェアエンジニア',
     startDate: '2026-07',
     description: '',
@@ -32,8 +36,9 @@ export const career: CareerHistory[] = [
     technologies: ['Ruby', 'Ruby on Rails', 'TypeScript', 'React', 'Next.js', 'Google Cloud', 'Firebase', 'Vercel', 'Docker'],
   },
   {
-    id: 'company-a',
-    company: 'Web系事業会社A',
+    id: 'career-1',
+    industry: 'Web系事業会社',
+    service: '事業者と利用者をつなぐ自社のWebプラットフォームを開発',
     role: 'バックエンドエンジニア',
     startDate: '2019-04',
     endDate: '2026-03',
@@ -53,13 +58,13 @@ export const career: CareerHistory[] = [
       {
         name: 'Webサイト自動作成機能の開発',
         description:
-          '掲載情報をもとに独自ドメイン対応の公式HPを自動作成・更新を行う機能の開発を担当。ドメイン設定からクラウドリソースの自動プロビジョニングをはじめとしたライフサイクルの設計・実装を担った。',
+          '掲載情報をもとに独自ドメイン対応のWebサイトを自動作成・更新する機能の開発を担当。ドメイン設定からクラウドリソースの自動プロビジョニングをはじめとしたライフサイクルの設計・実装を担った。',
         role: 'バックエンド',
         technologies: ['PHP', 'Laravel', 'AWS', 'AWS SDK for PHP'],
         achievements: [],
       },
       {
-        name: '外部のプラットフォームサービス連携機能の開発',
+        name: '外部サービスへの情報同期機能の開発',
         description:
           '掲載情報を外部のプラットフォームサービスへ同期する機能の開発を担当。自社・外部データ間のマッピングの設計から、手運用を限りなく抑える形での実装を担った。',
         role: 'バックエンド',
