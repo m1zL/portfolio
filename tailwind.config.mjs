@@ -11,19 +11,9 @@ export default {
           from: { opacity: '0', transform: 'translateY(16px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
-        ticker: {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-50%)' },
-        },
-        'ticker-reverse': {
-          '0%': { transform: 'translateX(-50%)' },
-          '100%': { transform: 'translateX(0)' },
-        },
       },
       animation: {
         'fade-up': 'fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both',
-        ticker: 'ticker 30s linear infinite',
-        'ticker-reverse': 'ticker-reverse 30s linear infinite',
       },
     },
   },

@@ -19,6 +19,7 @@ export const CATEGORY_LABELS: Record<SkillCategory, string> = {
   tool: 'Tool',
 };
 
+// カテゴリの表示順
 export const CATEGORY_ORDER: SkillCategory[] = [
   'language',
   'framework',
@@ -27,16 +28,21 @@ export const CATEGORY_ORDER: SkillCategory[] = [
   'tool',
 ];
 
-export const LEVEL_PERCENT: Record<SkillLevel, number> = {
-  expert: 90,
-  proficient: 70,
-  familiar: 50,
+// 習熟度の段階（ドットの数）。3 が最も高い
+export const LEVEL_RANK: Record<SkillLevel, number> = {
+  expert: 3,
+  proficient: 2,
+  familiar: 1,
 };
 
-export const LEVEL_LABEL: Record<SkillLevel, string> = {
-  expert: 'エキスパート',
-  proficient: '実務レベル',
-  familiar: '基礎レベル',
+export const LEVEL_MAX = 3;
+
+export const LEVEL_ORDER: SkillLevel[] = ['expert', 'proficient', 'familiar'];
+
+export const LEVEL_DESCRIPTION: Record<SkillLevel, string> = {
+  expert: '実務で深く使用・チームへの技術指導が可能',
+  proficient: '実務で継続的に使用・一人で完結できる',
+  familiar: '実務経験あり・補助的に使用',
 };
 
 export const skills: Skill[] = [
