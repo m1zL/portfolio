@@ -112,7 +112,7 @@ export const skills: Skill[] = [
     yearsOfExperience: 2,
     featured: false,
     description: '全文検索基盤の構築・運用。商品検索・ログ分析に活用。',
-    canDo: ['全文検索インデックス設計', 'アグリゲーション', 'Kibana ダッシュボード'],
+    canDo: ['全文検索インデックス設計', 'アグリゲーション', 'OpenSearch Dashboards での可視化'],
   },
 
   // Infrastructure
